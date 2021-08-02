@@ -1,4 +1,3 @@
-use std::f32::consts::PI;
 use std::f64::consts::PI;
 use std::io;
 
@@ -28,7 +27,7 @@ fn main() {
                 }
             };
             println!("{:?}", chord);
-            match calculate_chord(chord) {
+            match chord.calculate_chord() {
                 Ok(r) => println!("{}", r),
                 Err(e) => println!("{}", e),
             }
@@ -70,18 +69,23 @@ fn main() {
 /// The main carrier of information needed to find the side length
 #[derive(Debug)]
 struct Frac {
-    poly: u32,
-    gram: u32,
-    chord: u32,
+    poly: f64,
+    gram: f64,
+    chord: f64,
 }
+
 impl Frac {
     /// Calculates the `chord`-th chord of a `poly`/`gram`-gon.
-    fn calculate_chord(frac: Frac) -> Result<f64, &'static str> {
-        if frac.chord >= frac.poly || frac.gram >= frac.poly || frac.chord <= 0 || frac.gram <= 0 {
+    fn calculate_chord(self) -> Result<f64, &'static str> {
+        if self.chord >= self.poly
+            || self.gram >= self.poly
+            || self.chord <= 0f64
+            || self.gram <= 0f64
+        {
             return Err("Invalid denominator");
         }
 
-        Ok((PI * frac.chord / frac.poly).sin() * (PI * frac.gram / frac.poly).csc())
+        Ok((PI * self.chord / self.poly).sin() / (PI * self.gram / self.poly).sin())
     }
 }
 
@@ -100,17 +104,17 @@ fn destringify(frac: &str) -> Result<Frac, &'static str> {
     // If the input is not starry, only two chunks are needed.
     if chunks.len() == 2 && star == false {
         //println!("not star");
-        let poly = match chunks[0].parse::<u32>() {
+        let poly = match chunks[0].parse::<f64>() {
             Ok(r) => r,
             Err(_e) => return Err("Failed to parse n"),
         };
-        let chord = match chunks[1].parse::<u32>() {
+        let chord = match chunks[1].parse::<f64>() {
             Ok(r) => r,
             Err(_e) => return Err("Failed to parse D"),
         };
         return Ok(Frac {
             poly: poly,
-            gram: 1,
+            gram: 1f64,
             chord: chord,
         });
     }
@@ -118,15 +122,15 @@ fn destringify(frac: &str) -> Result<Frac, &'static str> {
     // If the input is starry, there will be three chunks needed.
     if chunks.len() == 3 && star == true {
         //println!("star");
-        let poly = match chunks[0].parse::<u32>() {
+        let poly = match chunks[0].parse::<f64>() {
             Ok(r) => r,
             Err(_e) => return Err("Failed to parse n"),
         };
-        let chord = match chunks[2].parse::<u32>() {
+        let chord = match chunks[2].parse::<f64>() {
             Ok(r) => r,
             Err(_e) => return Err("Failed to parse D"),
         };
-        let gram = match chunks[1].parse::<u32>() {
+        let gram = match chunks[1].parse::<f64>() {
             Ok(r) => r,
             Err(_e) => return Err("Failed to parse d"),
         };
